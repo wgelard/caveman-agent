@@ -45,7 +45,7 @@ Then open Copilot Chat, type `@` and select **caveman**.
 | **full** | `/caveman full` | Default — drop articles, fragments, classic caveman |
 | **ultra** | `/caveman ultra` | Max compression, abbreviations, arrows |
 
-Level persists until changed or session ends. Default is **full**.
+Level persists until changed or session ends. Default is **ultra**.
 
 ### Workflow (agent mode)
 
