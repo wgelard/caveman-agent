@@ -9,6 +9,7 @@ Inspired by [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman).
 | File | Purpose |
 |------|---------|
 | `caveman.agent.md` | Agent persona — caveman speech, ASK→PLAN→DO workflow, intensity levels |
+| `caveman-review.prompt.md` | Terse code review — one line per finding, ready to paste into a PR |
 | `cpp-best-practices.instructions.md` | Modern C/C++, RAII, clang-format/tidy, GoogleTest |
 | `python-best-practices.instructions.md` | Type hints, uv, ruff, pytest |
 | `cmake-best-practices.instructions.md` | Target-based CMake 3.16+, FetchContent, CTest |
@@ -24,13 +25,13 @@ Copy all `.agent.md` and `.instructions.md` files to your VS Code user prompts f
 **Windows:**
 
 ```powershell
-Copy-Item *.agent.md, *.instructions.md "$env:APPDATA\Code\User\prompts\"
+Copy-Item *.agent.md, *.prompt.md, *.instructions.md "$env:APPDATA\Code\User\prompts\"
 ```
 
 **macOS / Linux:**
 
 ```bash
-cp *.agent.md *.instructions.md ~/.config/Code/User/prompts/
+cp *.agent.md *.prompt.md *.instructions.md ~/.config/Code/User/prompts/
 ```
 
 Then open Copilot Chat, type `@` and select **caveman**.
@@ -64,6 +65,22 @@ Responds in English by default. Switches to French if you write in French.
 ### Turn Off
 
 Say "stop caveman" or "normal mode" to revert to normal speech.
+
+### Code Review
+
+Attach a file or use `#changes`, then:
+
+```
+@caveman /caveman-review
+```
+
+Output is one line per finding, ready to paste into a PR:
+
+```
+L42: 🔴 bug: user can be null after .find(). Add guard before .email.
+L87: 🟡 risk: no retry on 429. Wrap in withBackoff(3).
+L120: 🔵 nit: magic number 3600. Extract to TOKEN_TTL_SECONDS.
+```
 
 ## License
 
