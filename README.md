@@ -1,4 +1,4 @@
-# caveman-agent
+# caveman
 
 A VS Code Copilot toolkit: **anvil** agent for evidence-first code verification, **caveman** instruction for ultra-compressed communication, and shared best-practice instructions for C/C++, Python, CMake, and Git.
 
@@ -32,16 +32,16 @@ Caveman is an always-on instruction that controls **how** the agent talks. Anvil
 **Windows (PowerShell):**
 
 ```powershell
-git clone https://github.com/<owner>/caveman-agent.git
-cd caveman-agent
+git clone https://github.com/<owner>/caveman.git
+cd caveman
 .\install.ps1
 ```
 
 **macOS / Linux:**
 
 ```bash
-git clone https://github.com/<owner>/caveman-agent.git
-cd caveman-agent
+git clone https://github.com/<owner>/caveman.git
+cd caveman
 chmod +x install.sh
 ./install.sh
 ```
@@ -119,7 +119,7 @@ For Medium and Large tasks, anvil runs a full verification pipeline:
 4. **Implement** — Follows existing patterns, prefers reuse over new abstractions
 5. **Verify (The Forge)** — IDE diagnostics → syntax → build → type check → lint → tests → smoke test
 6. **Adversarial Review** — Launches independent code-review subagents (different models)
-7. **Evidence Bundle** — SQL-generated verification report with confidence level
+7. **Evidence Bundle** — Verification report with confidence level
 8. **Auto-Commit** — Commits with Conventional Commits format
 
 #### Task Sizing
