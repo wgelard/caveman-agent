@@ -137,4 +137,8 @@ switch ($Target) {
     'all'    { Install-VsCode; Write-Host ''; Install-Cli }
 }
 
+# Run verification
+Write-Host ''
+& (Join-Path $ScriptDir 'test-install.ps1') -Expected present
+
 Write-Host ''

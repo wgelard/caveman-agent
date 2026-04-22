@@ -117,4 +117,8 @@ case "$target" in
     *)      echo "Usage: $0 [all|vscode|cli]"; exit 1 ;;
 esac
 
+# Run verification
+echo ""
+bash "$(dirname "$0")/test-install.sh" present
+
 echo ""

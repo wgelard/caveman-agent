@@ -68,6 +68,25 @@ Install a specific target only:
 .\install.ps1 -Target cli       # Copilot CLI only
 ```
 
+Both install and uninstall scripts run a verification check automatically. You can also run it standalone:
+
+```powershell
+.\test-install.ps1                  # Verify files are installed
+.\test-install.ps1 -Expected absent # Verify files are removed
+```
+
+### Uninstall
+
+```powershell
+.\uninstall.ps1              # Remove from both VS Code and CLI
+.\uninstall.ps1 -Target cli  # CLI only
+```
+
+```bash
+./uninstall.sh               # Remove from both
+./uninstall.sh cli           # CLI only
+```
+
 ### Platform support
 
 | Platform | Agent (anvil) | Instructions (caveman + others) | How to invoke |
