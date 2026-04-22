@@ -1,42 +1,93 @@
 # caveman-agent
 
-A VS Code Copilot agent that speaks like a caveman — cutting ~75% of output tokens while enforcing C/C++, Python, CMake, and Git best practices.
+A VS Code Copilot agent toolkit: **caveman** for ultra-compressed communication and **anvil** for evidence-first code verification — backed by shared best-practice instructions for C/C++, Python, CMake, and Git.
 
-Inspired by [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman).
+Inspired by [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) and [burkeholland/anvil](https://github.com/burkeholland/anvil).
 
 ## What's Inside
 
+### Agents
+
 | File | Purpose |
 |------|---------|
-| `caveman.agent.md` | Agent persona — caveman speech, ASK→PLAN→DO workflow, intensity levels |
-| `caveman-review.prompt.md` | Terse code review — one line per finding, ready to paste into a PR |
-| `cpp-best-practices.instructions.md` | Modern C/C++, RAII, clang-format/tidy, GoogleTest |
-| `python-best-practices.instructions.md` | Type hints, uv, ruff, pytest |
-| `cmake-best-practices.instructions.md` | Target-based CMake 3.16+, FetchContent, CTest |
-| `git-best-practices.instructions.md` | Conventional Commits, logical commits, pre-commit hooks |
-| `readme-best-practices.instructions.md` | README structure and guidelines |
+| `caveman.agent.md` | Communication mode — caveman speech, ASK→PLAN→DO workflow, intensity levels (lite/full/ultra) |
+| `anvil.agent.md` | Evidence-first coding agent — pushback, verification cascade, adversarial review, auto-commit |
 
-The agent file defines the caveman persona and workflow. The instruction files auto-load by file type — they work with **any** Copilot agent, not just caveman.
+### Prompts
+
+| File | Purpose |
+|------|---------|
+| `caveman-review.prompt.md` | Terse code review — one line per finding, ready to paste into a PR |
+
+### Instructions (auto-load by file type)
+
+| File | Purpose |
+|------|---------|
+| `instructions/cpp-best-practices.instructions.md` | Modern C/C++, RAII, clang-format/tidy, GoogleTest |
+| `instructions/python-best-practices.instructions.md` | Type hints, uv, ruff, ty, pytest |
+| `instructions/cmake-best-practices.instructions.md` | Target-based CMake 3.16+, FetchContent, CTest |
+| `instructions/git-best-practices.instructions.md` | Conventional Commits, logical commits, pre-commit hooks |
+| `instructions/readme-best-practices.instructions.md` | README structure and guidelines |
+
+Caveman controls **how** the agent talks. Anvil controls **how** the agent works on code. The instruction files auto-load by file type and work with **any** Copilot agent. All three compose naturally — activate caveman mode, invoke anvil for a code task, and get terse explanations with full verification rigor.
 
 ## Install
 
-Copy all `.agent.md` and `.instructions.md` files to your VS Code user prompts folder:
+### Quick install (recommended)
 
-**Windows:**
+**Windows (PowerShell):**
 
 ```powershell
-Copy-Item *.agent.md, *.prompt.md, *.instructions.md "$env:APPDATA\Code\User\prompts\"
+git clone https://github.com/<owner>/caveman-agent.git
+cd caveman-agent
+.\install.ps1
 ```
 
 **macOS / Linux:**
 
 ```bash
-cp *.agent.md *.prompt.md *.instructions.md ~/.config/Code/User/prompts/
+git clone https://github.com/<owner>/caveman-agent.git
+cd caveman-agent
+chmod +x install.sh
+./install.sh
 ```
 
-Then open Copilot Chat, type `@` and select **caveman**.
+The install script copies files to the right locations for both platforms:
 
-## Usage
+| Target | What gets installed | Where |
+|--------|-------------------|-------|
+| VS Code | Agents, prompts, instructions (as-is) | `~/.config/Code/User/prompts/` (Linux/macOS) or `%APPDATA%\Code\User\prompts\` (Windows) |
+| Copilot CLI | Agents (frontmatter stripped) | `~/.copilot/agents/` |
+| Copilot CLI | Instructions (merged into one file) | `~/.copilot/copilot-instructions.md` |
+
+Install a specific target only:
+
+```bash
+./install.sh vscode    # VS Code only
+./install.sh cli       # Copilot CLI only
+```
+
+```powershell
+.\install.ps1 -Target vscode    # VS Code only
+.\install.ps1 -Target cli       # Copilot CLI only
+```
+
+### Platform support
+
+| Platform | Agents (caveman, anvil) | Instructions | How to invoke agents |
+|----------|------------------------|--------------|---------------------|
+| **VS Code Copilot Chat** | ✅ Full support | ✅ Auto-load by file type | `@caveman` or `@anvil` in chat |
+| **GitHub Copilot CLI** | ✅ Global agents | ✅ Global instructions | `/agent`, prompt naturally, or `copilot --agent=caveman` |
+
+The install script strips VS Code-specific YAML frontmatter when copying agents to Copilot CLI. Agent behavior (system prompt) is preserved — only VS Code metadata (`tools`, `model`, `argument-hint`) is removed.
+
+Then open Copilot Chat, type `@` and select **caveman** or **anvil**.
+
+## Agents
+
+### Caveman — communication mode
+
+Cuts ~75% of output tokens by speaking like a caveman while keeping full technical accuracy.
 
 ### Intensity Levels
 
@@ -80,6 +131,54 @@ Output is one line per finding, ready to paste into a PR:
 L42: 🔴 bug: user can be null after .find(). Add guard before .email.
 L87: 🟡 risk: no retry on 429. Wrap in withBackoff(3).
 L120: 🔵 nit: magic number 3600. Extract to TOKEN_TTL_SECONDS.
+```
+
+### Anvil — evidence-first coding agent
+
+Verifies code before presenting it. Attacks its own output with adversarial multi-model review. Never shows broken code to the developer.
+
+#### The Anvil Loop
+
+For Medium and Large tasks, anvil runs a full verification pipeline:
+
+1. **Pushback** — Challenges the request at implementation AND requirements level
+2. **Git Hygiene** — Checks dirty state, branch, worktree before starting
+3. **Baseline Capture** — Records current system state before changes
+4. **Implement** — Follows existing patterns, prefers reuse over new abstractions
+5. **Verify (The Forge)** — IDE diagnostics → syntax → build → type check → lint → tests → smoke test
+6. **Adversarial Review** — Launches independent code-review subagents (different models)
+7. **Evidence Bundle** — SQL-generated verification report with confidence level
+8. **Auto-Commit** — Commits with Conventional Commits format
+
+#### Task Sizing
+
+| Size | Trigger | Verification |
+|------|---------|-------------|
+| **Small** | Typo, rename, config tweak | IDE diagnostics + syntax only |
+| **Medium** | Bug fix, feature, refactor | Full cascade + 1 adversarial reviewer |
+| **Large** | New feature, multi-file, auth/crypto | Full cascade + 3 reviewers + user confirmation |
+
+#### Risk Classification
+
+- 🟢 Additive changes, tests, docs, config
+- 🟡 Modifying business logic, function signatures, DB queries
+- 🔴 Auth/crypto/payments, data deletion, schema migrations, public API
+
+#### Usage
+
+```
+@anvil optimize the parser module
+@anvil refactor the auth middleware
+@anvil fix the race condition in the cache layer
+```
+
+## Combining Agents
+
+Caveman and anvil compose naturally. Activate caveman mode in your session, then invoke anvil for code tasks — you get terse caveman-style explanations with full anvil verification rigor.
+
+```
+@caveman              ← activates caveman communication mode
+@anvil fix the bug    ← anvil runs full verification, caveman keeps output terse
 ```
 
 ## License
