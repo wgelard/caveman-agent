@@ -1,6 +1,6 @@
 # caveman-agent
 
-A VS Code Copilot agent toolkit: **caveman** for ultra-compressed communication and **anvil** for evidence-first code verification — backed by shared best-practice instructions for C/C++, Python, CMake, and Git.
+A VS Code Copilot toolkit: **anvil** agent for evidence-first code verification, **caveman** instruction for ultra-compressed communication, and shared best-practice instructions for C/C++, Python, CMake, and Git.
 
 Inspired by [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) and [burkeholland/anvil](https://github.com/burkeholland/anvil).
 
@@ -10,7 +10,6 @@ Inspired by [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) an
 
 | File | Purpose |
 |------|---------|
-| `caveman.agent.md` | Communication mode — caveman speech, ASK→PLAN→DO workflow, intensity levels (lite/full/ultra) |
 | `anvil.agent.md` | Evidence-first coding agent — pushback, verification cascade, adversarial review, auto-commit |
 
 ### Prompts
@@ -19,17 +18,18 @@ Inspired by [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) an
 |------|---------|
 | `caveman-review.prompt.md` | Terse code review — one line per finding, ready to paste into a PR |
 
-### Instructions (auto-load by file type)
+### Instructions (always-on or auto-load by file type)
 
-| File | Purpose |
-|------|---------|
-| `instructions/cpp-best-practices.instructions.md` | Modern C/C++, RAII, clang-format/tidy, GoogleTest |
-| `instructions/python-best-practices.instructions.md` | Type hints, uv, ruff, ty, pytest |
-| `instructions/cmake-best-practices.instructions.md` | Target-based CMake 3.16+, FetchContent, CTest |
-| `instructions/git-best-practices.instructions.md` | Conventional Commits, logical commits, pre-commit hooks |
-| `instructions/readme-best-practices.instructions.md` | README structure and guidelines |
+| File | Scope | Purpose |
+|------|-------|---------|
+| `instructions/caveman.instructions.md` | All files | Ultra-compressed communication — ~75% fewer tokens, always active |
+| `instructions/cpp-best-practices.instructions.md` | `*.{c,cpp,h,hpp,...}` | Modern C/C++, RAII, clang-format/tidy, GoogleTest |
+| `instructions/python-best-practices.instructions.md` | `*.py` | Type hints, uv, ruff, ty, pytest |
+| `instructions/cmake-best-practices.instructions.md` | `CMakeLists.txt, *.cmake` | Target-based CMake 3.16+, FetchContent, CTest |
+| `instructions/git-best-practices.instructions.md` | All files | Conventional Commits, logical commits, pre-commit hooks |
+| `instructions/readme-best-practices.instructions.md` | `README.md` | README structure and guidelines |
 
-Caveman controls **how** the agent talks. Anvil controls **how** the agent works on code. The instruction files auto-load by file type and work with **any** Copilot agent. All three compose naturally — activate caveman mode, invoke anvil for a code task, and get terse explanations with full verification rigor.
+Caveman is an always-on instruction that controls **how** the agent talks. Anvil is an agent that controls **how** the agent works on code. The other instruction files auto-load by file type and work with **any** Copilot agent — including anvil.
 
 ## Install
 
@@ -56,8 +56,8 @@ The install script copies files to the right locations for both platforms:
 
 | Target | What gets installed | Where |
 |--------|-------------------|-------|
-| VS Code | Agents, prompts, instructions (as-is) | `~/.config/Code/User/prompts/` (Linux/macOS) or `%APPDATA%\Code\User\prompts\` (Windows) |
-| Copilot CLI | Agents (frontmatter stripped) | `~/.copilot/agents/` |
+| VS Code | Agent, prompts, instructions (as-is) | `~/.config/Code/User/prompts/` (Linux/macOS) or `%APPDATA%\Code\User\prompts\` (Windows) |
+| Copilot CLI | Agent (frontmatter stripped) | `~/.copilot/agents/` |
 | Copilot CLI | Instructions (merged into one file) | `~/.copilot/copilot-instructions.md` |
 
 Install a specific target only:
@@ -74,44 +74,26 @@ Install a specific target only:
 
 ### Platform support
 
-| Platform | Agents (caveman, anvil) | Instructions | How to invoke agents |
-|----------|------------------------|--------------|---------------------|
-| **VS Code Copilot Chat** | ✅ Full support | ✅ Auto-load by file type | `@caveman` or `@anvil` in chat |
-| **GitHub Copilot CLI** | ✅ Global agents | ✅ Global instructions | `/agent`, prompt naturally, or `copilot --agent=caveman` |
+| Platform | Agent (anvil) | Instructions (caveman + others) | How to invoke |
+|----------|---------------|--------------------------------|---------------|
+| **VS Code Copilot Chat** | ✅ Full support | ✅ Auto-load | `@anvil` in chat; caveman always active |
+| **GitHub Copilot CLI** | ✅ Global agent | ✅ Global instructions | `copilot --agent=anvil`; caveman always active |
 
-The install script strips VS Code-specific YAML frontmatter when copying agents to Copilot CLI. Agent behavior (system prompt) is preserved — only VS Code metadata (`tools`, `model`, `argument-hint`) is removed.
+The install script strips VS Code-specific YAML frontmatter when copying the agent to Copilot CLI. Agent behavior (system prompt) is preserved — only VS Code metadata (`tools`, `model`, `argument-hint`) is removed.
 
-Then open Copilot Chat, type `@` and select **caveman** or **anvil**.
+## Caveman — always-on communication style
 
-## Agents
-
-### Caveman — communication mode
-
-Cuts ~75% of output tokens by speaking like a caveman while keeping full technical accuracy.
+Caveman is an instruction (not an agent) that's always active. Every Copilot response — including `@anvil` — uses caveman-compressed output by default.
 
 ### Intensity Levels
 
 | Level | Command | Style |
 |-------|---------|-------|
 | **lite** | `/caveman lite` | No filler, full sentences, professional |
-| **full** | `/caveman full` | Default — drop articles, fragments, classic caveman |
-| **ultra** | `/caveman ultra` | Max compression, abbreviations, arrows |
+| **full** | `/caveman full` | Drop articles, fragments, classic caveman |
+| **ultra** | `/caveman ultra` | Max compression, abbreviations, arrows (default) |
 
-Level persists until changed or session ends. Default is **ultra**.
-
-### Workflow (agent mode)
-
-For non-trivial tasks, caveman follows a 3-step process:
-
-1. **ASK** — Short clarifying questions before acting
-2. **PLAN** — Shows a bullet plan, waits for your OK
-3. **DO** — Executes step by step with progress tracking
-
-For simple questions, it skips the workflow and answers directly.
-
-### Language
-
-Responds in English by default. Switches to French if you write in French.
+Level persists until changed or session ends.
 
 ### Turn Off
 
@@ -119,21 +101,19 @@ Say "stop caveman" or "normal mode" to revert to normal speech.
 
 ### Code Review
 
-Attach a file or use `#changes`, then:
+Attach a file or use `#changes`, then invoke the `/caveman-review` prompt:
 
-```
-@caveman /caveman-review
+```text
+/caveman-review
 ```
 
-Output is one line per finding, ready to paste into a PR:
-
-```
+```text
 L42: 🔴 bug: user can be null after .find(). Add guard before .email.
 L87: 🟡 risk: no retry on 429. Wrap in withBackoff(3).
 L120: 🔵 nit: magic number 3600. Extract to TOKEN_TTL_SECONDS.
 ```
 
-### Anvil — evidence-first coding agent
+## Anvil — evidence-first coding agent
 
 Verifies code before presenting it. Attacks its own output with adversarial multi-model review. Never shows broken code to the developer.
 
@@ -172,14 +152,15 @@ For Medium and Large tasks, anvil runs a full verification pipeline:
 @anvil fix the race condition in the cache layer
 ```
 
-## Combining Agents
+## Composing Caveman + Anvil
 
-Caveman and anvil compose naturally. Activate caveman mode in your session, then invoke anvil for code tasks — you get terse caveman-style explanations with full anvil verification rigor.
+Since caveman is an always-on instruction, invoking `@anvil` automatically gets caveman-compressed output. No extra setup needed.
 
-```
-@caveman              ← activates caveman communication mode
+```text
 @anvil fix the bug    ← anvil runs full verification, caveman keeps output terse
 ```
+
+To get verbose anvil output, say "stop caveman" first.
 
 ## License
 

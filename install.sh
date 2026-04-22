@@ -26,6 +26,9 @@ install_vscode() {
 
     mkdir -p "$VSCODE_PROMPTS"
 
+    # Clean up stale files from previous installs
+    rm -f "$VSCODE_PROMPTS/caveman.agent.md"
+
     # Agents
     for f in "$SCRIPT_DIR"/*.agent.md; do
         [ -f "$f" ] || continue
@@ -55,6 +58,9 @@ install_cli() {
 
     mkdir -p "$COPILOT_DIR"
     mkdir -p "$COPILOT_AGENTS_DIR"
+
+    # Clean up stale files from previous installs
+    rm -f "$COPILOT_AGENTS_DIR/caveman.md"
 
     # --- Agents → ~/.copilot/agents/ (convert frontmatter for CLI) ---
     for f in "$SCRIPT_DIR"/*.agent.md; do

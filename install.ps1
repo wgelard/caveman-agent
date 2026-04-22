@@ -39,6 +39,9 @@ function Install-VsCode {
         Write-Host "    Created $VscodePrompts"
     }
 
+    # Clean up stale files from previous installs
+    Remove-Item (Join-Path $VscodePrompts 'caveman.agent.md') -ErrorAction SilentlyContinue
+
     # Agents
     $agents = Get-ChildItem -Path $ScriptDir -Filter '*.agent.md'
     foreach ($f in $agents) {
@@ -75,6 +78,9 @@ function Install-Cli {
     if (-not (Test-Path $CopilotAgentsDir)) {
         New-Item -ItemType Directory -Path $CopilotAgentsDir -Force | Out-Null
     }
+
+    # Clean up stale files from previous installs
+    Remove-Item (Join-Path $CopilotAgentsDir 'caveman.md') -ErrorAction SilentlyContinue
 
     $agents = Get-ChildItem -Path $ScriptDir -Filter '*.agent.md'
     foreach ($f in $agents) {
