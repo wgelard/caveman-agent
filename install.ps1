@@ -3,9 +3,13 @@
     Install caveman-agent toolkit for VS Code Copilot and GitHub Copilot CLI.
 
 .DESCRIPTION
-    Copies agents, prompts, and instructions to the appropriate locations:
-    - VS Code: agents + prompts + instructions -> user prompts folder
-    - Copilot CLI: agents -> ~/.copilot/agents/, instructions -> ~/.copilot/copilot-instructions.md
+    Copies files to the appropriate locations:
+    - Instructions -> VS Code user prompts folder (auto-load by file type)
+    - Agents -> ~/.copilot/agents/ (shared by VS Code and Copilot CLI)
+    - Instructions -> ~/.copilot/copilot-instructions.md (merged, for CLI)
+
+    VS Code reads both its prompts folder AND ~/.copilot/agents/, so agents
+    are installed once to ~/.copilot/agents/ to avoid duplicates.
 
 .PARAMETER Target
     Installation target: 'all' (default), 'vscode', or 'cli'.
@@ -40,23 +44,15 @@ function Install-VsCode {
     }
 
     # Clean up stale files from previous installs
-    Remove-Item (Join-Path $VscodePrompts 'caveman.agent.md') -ErrorAction SilentlyContinue
-
-    # Agents
-    $agents = Get-ChildItem -Path $ScriptDir -Filter '*.agent.md'
-    foreach ($f in $agents) {
-        Copy-Item $f.FullName -Destination $VscodePrompts -Force
-        Write-Host "    Copied $($f.Name)"
+    foreach ($stale in @('caveman.agent.md', 'anvil.agent.md', 'caveman-review.prompt.md')) {
+        $stalePath = Join-Path $VscodePrompts $stale
+        if (Test-Path $stalePath) {
+            Remove-Item $stalePath -Force
+            Write-Host "    Removed stale $stale"
+        }
     }
 
-    # Prompts
-    $prompts = Get-ChildItem -Path $ScriptDir -Filter '*.prompt.md'
-    foreach ($f in $prompts) {
-        Copy-Item $f.FullName -Destination $VscodePrompts -Force
-        Write-Host "    Copied $($f.Name)"
-    }
-
-    # Instructions
+    # Instructions (agents are installed via Install-Cli to ~/.copilot/agents/)
     $instructions = Get-ChildItem -Path $InstructionsDir -Filter '*.instructions.md'
     foreach ($f in $instructions) {
         Copy-Item $f.FullName -Destination $VscodePrompts -Force
@@ -126,7 +122,7 @@ function Install-Cli {
 
     Write-Host '==> Copilot CLI install complete' -ForegroundColor Green
     Write-Host ''
-    Write-Host '    Agents available via /agent or copilot --agent=<name>' -ForegroundColor Yellow
+    Write-Host '    Agents in ~/.copilot/agents/ (shared by VS Code and CLI)' -ForegroundColor Yellow
     Write-Host '    Instructions loaded globally for all sessions.' -ForegroundColor Yellow
 }
 

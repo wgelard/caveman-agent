@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # Install caveman-agent toolkit for VS Code Copilot and GitHub Copilot CLI.
 #
+# Instructions -> VS Code user prompts folder (auto-load by file type)
+# Agents -> ~/.copilot/agents/ (shared by VS Code and Copilot CLI)
+# Instructions -> ~/.copilot/copilot-instructions.md (merged, for CLI)
+#
+# VS Code reads both its prompts folder AND ~/.copilot/agents/, so agents
+# are installed once to ~/.copilot/agents/ to avoid duplicates.
+#
 # Usage:
 #   ./install.sh              # Install for both VS Code and Copilot CLI
 #   ./install.sh vscode       # VS Code only
@@ -28,22 +35,10 @@ install_vscode() {
 
     # Clean up stale files from previous installs
     rm -f "$VSCODE_PROMPTS/caveman.agent.md"
+    rm -f "$VSCODE_PROMPTS/anvil.agent.md"
+    rm -f "$VSCODE_PROMPTS/caveman-review.prompt.md"
 
-    # Agents
-    for f in "$SCRIPT_DIR"/*.agent.md; do
-        [ -f "$f" ] || continue
-        cp "$f" "$VSCODE_PROMPTS/"
-        echo "    Copied $(basename "$f")"
-    done
-
-    # Prompts
-    for f in "$SCRIPT_DIR"/*.prompt.md; do
-        [ -f "$f" ] || continue
-        cp "$f" "$VSCODE_PROMPTS/"
-        echo "    Copied $(basename "$f")"
-    done
-
-    # Instructions
+    # Instructions (agents are installed via install_cli to ~/.copilot/agents/)
     for f in "$INSTRUCTIONS_DIR"/*.instructions.md; do
         [ -f "$f" ] || continue
         cp "$f" "$VSCODE_PROMPTS/"
@@ -105,7 +100,7 @@ HEADER
     echo "    Wrote $COPILOT_INSTRUCTIONS"
     echo "==> Copilot CLI install complete"
     echo ""
-    echo "    Agents available via /agent or copilot --agent=<name>"
+    echo "    Agents in ~/.copilot/agents/ (shared by VS Code and CLI)"
     echo "    Instructions loaded globally for all sessions."
 }
 

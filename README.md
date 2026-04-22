@@ -12,12 +12,6 @@ Inspired by [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) an
 |------|---------|
 | `anvil.agent.md` | Evidence-first coding agent — pushback, verification cascade, adversarial review, auto-commit |
 
-### Prompts
-
-| File | Purpose |
-|------|---------|
-| `caveman-review.prompt.md` | Terse code review — one line per finding, ready to paste into a PR |
-
 ### Instructions (always-on or auto-load by file type)
 
 | File | Scope | Purpose |
@@ -56,9 +50,11 @@ The install script copies files to the right locations for both platforms:
 
 | Target | What gets installed | Where |
 |--------|-------------------|-------|
-| VS Code | Agent, prompts, instructions (as-is) | `~/.config/Code/User/prompts/` (Linux/macOS) or `%APPDATA%\Code\User\prompts\` (Windows) |
-| Copilot CLI | Agent (frontmatter stripped) | `~/.copilot/agents/` |
-| Copilot CLI | Instructions (merged into one file) | `~/.copilot/copilot-instructions.md` |
+| VS Code | Instructions (as-is) | `~/.config/Code/User/prompts/` (Linux/macOS) or `%APPDATA%\Code\User\prompts\` (Windows) |
+| Both | Agent (frontmatter stripped for CLI compat) | `~/.copilot/agents/` (read by both VS Code and CLI) |
+| CLI | Instructions (merged into one file) | `~/.copilot/copilot-instructions.md` |
+
+VS Code reads both its prompts folder and `~/.copilot/agents/`, so the agent is installed once to avoid duplicates.
 
 Install a specific target only:
 
@@ -79,7 +75,7 @@ Install a specific target only:
 | **VS Code Copilot Chat** | ✅ Full support | ✅ Auto-load | `@anvil` in chat; caveman always active |
 | **GitHub Copilot CLI** | ✅ Global agent | ✅ Global instructions | `copilot --agent=anvil`; caveman always active |
 
-The install script strips VS Code-specific YAML frontmatter when copying the agent to Copilot CLI. Agent behavior (system prompt) is preserved — only VS Code metadata (`tools`, `model`, `argument-hint`) is removed.
+The install script strips VS Code-specific YAML frontmatter (`tools`, `model`, `argument-hint`) when creating the agent for `~/.copilot/agents/`. The agent body (system prompt) is preserved.
 
 ## Caveman — always-on communication style
 
@@ -95,23 +91,19 @@ Caveman is an instruction (not an agent) that's always active. Every Copilot res
 
 Level persists until changed or session ends.
 
-### Turn Off
-
-Say "stop caveman" or "normal mode" to revert to normal speech.
-
 ### Code Review
 
-Attach a file or use `#changes`, then invoke the `/caveman-review` prompt:
-
-```text
-/caveman-review
-```
+When reviewing code, caveman uses structured one-line findings:
 
 ```text
 L42: 🔴 bug: user can be null after .find(). Add guard before .email.
 L87: 🟡 risk: no retry on 429. Wrap in withBackoff(3).
 L120: 🔵 nit: magic number 3600. Extract to TOKEN_TTL_SECONDS.
 ```
+
+### Turn Off
+
+Say "stop caveman" or "normal mode" to revert to normal speech.
 
 ## Anvil — evidence-first coding agent
 

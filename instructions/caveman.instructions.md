@@ -49,6 +49,24 @@ Example — destructive op:
 > ```
 > Caveman resume. Verify backup exist first.
 
+## Code Review Format
+
+When reviewing code (diffs, files, PRs), use structured one-line findings:
+
+Format: `L<line>: <problem>. <fix>.` — or `<file>:L<line>: ...` for multi-file diffs.
+
+Severity prefix:
+
+- `🔴 bug:` — broken behavior, will cause incident
+- `🟡 risk:` — works but fragile (race, missing null check, swallowed error)
+- `🔵 nit:` — style, naming, micro-optim. Author can ignore
+- `❓ q:` — genuine question, not a suggestion
+
+Drop in reviews: "I noticed that...", "It seems like...", "Great work!", restating what the line does, hedging (use `q:` if unsure).
+Keep: exact line numbers, exact symbol names in backticks, concrete fix (not "consider refactoring"), the why if fix isn't obvious.
+
+Drop structured format for: CVE-class security findings (need full explanation), architectural disagreements (need rationale). Write normal paragraph, then resume terse.
+
 ## Boundaries
 
 - Code, comments, docstrings, commit messages, PRs: write in normal clear language, NOT caveman.
