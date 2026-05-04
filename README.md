@@ -20,6 +20,8 @@ Inspired by [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) an
 | `instructions/cpp-best-practices.instructions.md` | `*.{c,cpp,h,hpp,...}` | Modern C/C++, RAII, clang-format/tidy, GoogleTest |
 | `instructions/python-best-practices.instructions.md` | `*.py` | Type hints, uv, ruff, ty, pytest |
 | `instructions/cmake-best-practices.instructions.md` | `CMakeLists.txt, *.cmake` | Target-based CMake 3.16+, FetchContent, CTest |
+| `instructions/docker-best-practices.instructions.md` | `Dockerfile*, docker-compose*` | Multi-stage builds, minimal images, non-root, security |
+| `instructions/github-actions-best-practices.instructions.md` | `.github/workflows/*.yml` | Pinned SHAs, minimal permissions, secret hygiene, caching |
 | `instructions/git-best-practices.instructions.md` | All files | Conventional Commits, logical commits, pre-commit hooks |
 | `instructions/readme-best-practices.instructions.md` | `README.md` | README structure and guidelines |
 
@@ -53,19 +55,28 @@ The install script copies files to the right locations for both platforms:
 | VS Code | Instructions (as-is) | `~/.config/Code/User/prompts/` (Linux/macOS) or `%APPDATA%\Code\User\prompts\` (Windows) |
 | Both | Agent (frontmatter stripped for CLI compat) | `~/.copilot/agents/` (read by both VS Code and CLI) |
 | CLI | Instructions (merged into one file) | `~/.copilot/copilot-instructions.md` |
+| OpenCode | Agent (OpenCode frontmatter) | `~/.config/opencode/agents/` |
+| OpenCode | Instructions (merged into one file) | `~/.config/opencode/AGENTS.md` |
+| Project | Instructions (merged, committed) | `./AGENTS.md` in repo root |
 
 VS Code reads both its prompts folder and `~/.copilot/agents/`, so the agent is installed once to avoid duplicates.
+
+The repo-level `AGENTS.md` is committed and auto-read by OpenCode, Claude Code, Gemini CLI, and any AI tool that follows the AGENTS.md convention — no install required for project-level use.
 
 Install a specific target only:
 
 ```bash
 ./install.sh vscode    # VS Code only
 ./install.sh cli       # Copilot CLI only
+./install.sh opencode  # OpenCode only
+./install.sh project   # Regenerate repo-level AGENTS.md only
 ```
 
 ```powershell
 .\install.ps1 -Target vscode    # VS Code only
 .\install.ps1 -Target cli       # Copilot CLI only
+.\install.ps1 -Target opencode  # OpenCode only
+.\install.ps1 -Target project   # Regenerate repo-level AGENTS.md only
 ```
 
 Both install and uninstall scripts run a verification check automatically. You can also run it standalone:
@@ -78,23 +89,28 @@ Both install and uninstall scripts run a verification check automatically. You c
 ### Uninstall
 
 ```powershell
-.\uninstall.ps1              # Remove from both VS Code and CLI
+.\uninstall.ps1              # Remove from VS Code, CLI, and OpenCode
 .\uninstall.ps1 -Target cli  # CLI only
 ```
 
 ```bash
-./uninstall.sh               # Remove from both
+./uninstall.sh               # Remove from all
 ./uninstall.sh cli           # CLI only
+./uninstall.sh opencode      # OpenCode only
 ```
 
 ### Platform support
 
 | Platform | Agent (anvil) | Instructions (caveman + others) | How to invoke |
 |----------|---------------|--------------------------------|---------------|
-| **VS Code Copilot Chat** | ✅ Full support | ✅ Auto-load | `@anvil` in chat; caveman always active |
+| **VS Code Copilot Chat** | ✅ Full support | ✅ Auto-load by file type | `@anvil` in chat; caveman always active |
 | **GitHub Copilot CLI** | ✅ Global agent | ✅ Global instructions | `copilot --agent=anvil`; caveman always active |
+| **OpenCode** | ✅ Global agent | ✅ Global instructions | `@anvil` in TUI; caveman always active |
+| **Claude Code / Gemini CLI** | ❌ Not supported | ✅ Via repo-level `AGENTS.md` | Instructions active automatically |
 
-The install script strips VS Code-specific YAML frontmatter (`tools`, `model`, `argument-hint`) when creating the agent for `~/.copilot/agents/`. The agent body (system prompt) is preserved.
+The install script converts frontmatter per platform: VS Code-specific fields (`tools`, `model`, `argument-hint`) are stripped for the Copilot CLI agent; OpenCode agents get `mode`, `permission`, and `description` added. The agent body (system prompt) is preserved for all platforms.
+
+For OpenCode project-level use, `AGENTS.md` at the repo root provides all instructions — no install needed. `.opencode/agents/anvil.md` provides the anvil agent for projects that include this toolkit as a submodule or reference. When you add or modify instruction files, regenerate `AGENTS.md` with `.\install.ps1 -Target project`.
 
 ## Caveman — always-on communication style
 
