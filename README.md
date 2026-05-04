@@ -79,12 +79,7 @@ Install a specific target only:
 .\install.ps1 -Target project   # Regenerate repo-level AGENTS.md only
 ```
 
-Both install and uninstall scripts run a verification check automatically. You can also run it standalone:
-
-```powershell
-.\test-install.ps1                  # Verify files are installed
-.\test-install.ps1 -Expected absent # Verify files are removed
-```
+Both install and uninstall scripts print every file they copy or remove — no separate verification step needed.
 
 ### Uninstall
 

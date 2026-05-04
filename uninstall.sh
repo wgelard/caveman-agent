@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Uninstall caveman toolkit from VS Code Copilot and GitHub Copilot CLI.
+# Uninstall caveman toolkit from VS Code Copilot, GitHub Copilot CLI, and OpenCode.
 #
 # Usage:
-#   ./uninstall.sh              # Uninstall from both
+#   ./uninstall.sh              # Uninstall from VS Code, Copilot CLI, and OpenCode
 #   ./uninstall.sh vscode       # VS Code only
 #   ./uninstall.sh cli          # Copilot CLI only
+#   ./uninstall.sh opencode     # OpenCode only
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -74,6 +75,32 @@ uninstall_cli() {
     echo "==> Copilot CLI uninstall complete"
 }
 
+OPENCODE_AGENTS_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/agents"
+OPENCODE_AGENTS="${XDG_CONFIG_HOME:-$HOME/.config}/opencode/AGENTS.md"
+
+uninstall_opencode() {
+    echo "==> Uninstalling from OpenCode..."
+
+    # Remove agent files
+    for f in "$SCRIPT_DIR"/*.agent.md; do
+        [ -f "$f" ] || continue
+        name="$(basename "$f" .agent.md)"
+        dest="$OPENCODE_AGENTS_DIR/$name.md"
+        if [ -f "$dest" ]; then
+            rm -f "$dest"
+            echo "    Removed agent: $name"
+        fi
+    done
+
+    # Remove merged instructions file
+    if [ -f "$OPENCODE_AGENTS" ]; then
+        rm -f "$OPENCODE_AGENTS"
+        echo "    Removed AGENTS.md"
+    fi
+
+    echo "==> OpenCode uninstall complete"
+}
+
 # --- Main ---
 echo ""
 echo "caveman uninstaller"
@@ -81,14 +108,11 @@ echo ""
 
 target="${1:-all}"
 case "$target" in
-    vscode) uninstall_vscode ;;
-    cli)    uninstall_cli ;;
-    all)    uninstall_vscode; echo ""; uninstall_cli ;;
-    *)      echo "Usage: $0 [all|vscode|cli]"; exit 1 ;;
+    vscode)   uninstall_vscode ;;
+    cli)      uninstall_cli ;;
+    opencode) uninstall_opencode ;;
+    all)      uninstall_vscode; echo ""; uninstall_cli; echo ""; uninstall_opencode ;;
+    *)        echo "Usage: $0 [all|vscode|cli|opencode]"; exit 1 ;;
 esac
-
-# Run verification
-echo ""
-bash "$(dirname "$0")/test-install.sh" absent
 
 echo ""

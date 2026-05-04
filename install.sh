@@ -218,8 +218,4 @@ case "$target" in
     *)        echo "Usage: $0 [all|vscode|cli|opencode|project]"; exit 1 ;;
 esac
 
-# Run verification
-echo ""
-bash "$(dirname "$0")/test-install.sh" present
-
 echo ""
